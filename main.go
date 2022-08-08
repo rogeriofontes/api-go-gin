@@ -14,6 +14,26 @@ func init() {
 	infrastructure.LoadEnv()
 }
 
+// @title Gin Swagger Example API
+// @version 1.0
+// @description This is a sample server server.
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost:8000
+// @BasePath /
+// @schemes http
+
+// @securityDefinitions.apikey Bearer
+// @in header
+// @name Authorization
+// @description "Type 'Bearer TOKEN' to correctly set the API Key"
 func main() {
 	router := infrastructure.NewGinRouter()
 	db := database.NewDatabase()
@@ -30,6 +50,30 @@ func main() {
 	userRoute := routes.NewUserRoute(userController, router)
 	userRoute.Setup()
 
-	db.DB.AutoMigrate(&models.Post{}, &models.User{})
+	commentRepository := repository.NewCommentRepository(db)
+	commentService := service.NewCommentService(commentRepository)
+	commentController := controller.NewCommentController(commentService)
+	commentRoute := routes.NewCommentRoute(commentController, router)
+	commentRoute.Setup()
+
+	projectRepository := repository.NewProjectRepository(db)
+	projectService := service.NewProjectService(projectRepository)
+	projectController := controller.NewProjectController(projectService)
+	projectRoute := routes.NewProjectRoute(projectController, router)
+	projectRoute.Setup()
+
+	eventRepository := repository.NewEventRepository(db)
+	eventService := service.NewEventService(eventRepository)
+	eventController := controller.NewEventController(eventService)
+	eventRoute := routes.NewEventRoute(eventController, router)
+	eventRoute.Setup()
+
+	meetRepository := repository.NewMeetRepository(db)
+	meetService := service.NewMeetService(meetRepository)
+	meetController := controller.NewMeetController(meetService)
+	meetRoute := routes.NewMeetRoute(meetController, router)
+	meetRoute.Setup()
+
+	db.DB.AutoMigrate(&models.Post{}, &models.User{}, &models.Comment{}, &models.Project{}, &models.Event{}, &models.Meet{})
 	router.Gin.Run(":8000")
 }

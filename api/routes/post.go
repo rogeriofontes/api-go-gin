@@ -26,7 +26,7 @@ func NewPostRoute(
 
 //Setup -> setups new choice Routes
 func (p PostRoute) Setup() {
-	post := p.Handler.Gin.Group("/api/posts")
+	post := p.Handler.Gin.Group("/api/v1/posts")
 	post.Use(middlewares.JwtAuthMiddleware())
 	{
 		post.GET("/", p.Controller.GetPosts)

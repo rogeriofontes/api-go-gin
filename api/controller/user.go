@@ -24,6 +24,18 @@ func NewUserController(s service.UserService) UserController {
 }
 
 //CreateUser ->  calls CreateUser services for validated user
+
+// CreateUser godoc
+// @Summary create a new user
+// @Schemes
+// @Description CreateUser services for validated user
+// @Param user body models.User true "Create model"
+// @Tags users
+// @Accept json
+// @Produce json
+// @Success 200 {object} util.ResponseLogin
+// @Failure 400 {object} httputil.HTTPError
+// @Router /auth/register [post]
 func (u *UserController) CreateUser(c *gin.Context) {
 	var user models.UserRegister
 	if err := c.ShouldBind(&user); err != nil {
@@ -44,6 +56,18 @@ func (u *UserController) CreateUser(c *gin.Context) {
 }
 
 //LoginUser : Generates JWT Token for validated user
+
+// LoginUser godoc
+// @Summary Login user
+// @Schemes
+// @Description Login user
+// @Param user body models.User true "Login model"
+// @Tags users
+// @Accept json
+// @Produce json
+// @Success 200 {object} util.ResponseLogin
+// @Failure 400 {object} httputil.HTTPError
+// @Router /auth/login [post]
 func (u *UserController) LoginUser(c *gin.Context) {
 	var user models.UserLogin
 	//var hmacSampleSecret []byte

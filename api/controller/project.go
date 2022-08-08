@@ -13,36 +13,36 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//PostController -> PostController
-type PostController struct {
-	service service.PostService
+//ProjectController -> ProjectController
+type ProjectController struct {
+	service service.ProjectService
 }
 
-//NewPostController : NewPostController
-func NewPostController(s service.PostService) PostController {
-	return PostController{
+//NewProjectController : NewProjectController
+func NewProjectController(s service.ProjectService) ProjectController {
+	return ProjectController{
 		service: s,
 	}
 }
 
-// GetPosts : GetPosts controller
+// GetProjects : GetProjects controller
 
-// GetPosts godoc
-// @Summary get all posts
+// GetProjects godoc
+// @Summary get all projects
 // @Schemes
-// @Description get all posts
+// @Description get all projects
 // @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
-// @Tags posts
+// @Tags projects
 // @Accept json
 // @Produce json
 // @Success 200 {Response} Response
-// @Router /posts [get]
-func (p PostController) GetPosts(ctx *gin.Context) {
-	var posts models.Post
+// @Router /projects [get]
+func (p ProjectController) GetProjects(ctx *gin.Context) {
+	var projects models.Project
 
 	keyword := ctx.Query("keyword")
 
-	data, total, err := p.service.FindAll(posts, keyword)
+	data, total, err := p.service.FindAll(projects, keyword)
 
 	if err != nil {
 		util.ErrorJSON(ctx, http.StatusBadRequest, "Failed to find questions")
@@ -57,103 +57,103 @@ func (p PostController) GetPosts(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, &util.Response{
 		Success: true,
-		Message: "Post result set",
+		Message: "Project result set",
 		Data: map[string]interface{}{
 			"rows":       respArr,
 			"total_rows": total,
 		}})
 }
 
-// AddPost : AddPost controller
+// AddProject : AddProject controller
 
-// AddPost godoc
-// @Summary create a new post
+// AddProject godoc
+// @Summary create a new project
 // @Schemes
-// @Description get all posts
+// @Description get all projects
 // @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
-// @Param post body models.Post true "Posts model"
-// @Tags posts
+// @Param project body models.Project true "Projects model"
+// @Tags projects
 // @Accept json
 // @Produce json
 // @Success 200 {object} util.ResponseLogin
 // @Failure 400 {object} httputil.HTTPError
-// @Router /posts [post]
-func (p *PostController) AddPost(ctx *gin.Context) {
-	var post models.Post
-	fmt.Println(post)
-	ctx.ShouldBindJSON(&post)
+// @Router /projects [post]
+func (p *ProjectController) AddProject(ctx *gin.Context) {
+	var project models.Project
+	fmt.Println(project)
+	ctx.ShouldBindJSON(&project)
 
-	if post.Title == "" {
+	if project.Title == "" {
 		util.ErrorJSON(ctx, http.StatusBadRequest, "Title is required")
 		return
 	}
-	if post.Body == "" {
+	if project.Content == "" {
 		util.ErrorJSON(ctx, http.StatusBadRequest, "Body is required")
 		return
 	}
 
-	err := p.service.Save(post)
+	err := p.service.Save(project)
 	if err != nil {
-		util.ErrorJSON(ctx, http.StatusBadRequest, "Failed to create post")
+		util.ErrorJSON(ctx, http.StatusBadRequest, "Failed to create project")
 		return
 	}
 
-	util.SuccessJSON(ctx, http.StatusCreated, "Successfully Created Post")
+	util.SuccessJSON(ctx, http.StatusCreated, "Successfully Created Project")
 }
 
-//GetPost : get post by id
+//GetProject : get project by id
 
-// GetPosts godoc
-// @Summary get post by id
+// GetProjects godoc
+// @Summary get project by id
 // @Schemes
-// @Description get post by id
-// @Tags posts
+// @Description get project by id
+// @Tags projects
 // @Accept json
 // @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
-// @Param id path int true "search post by id"
+// @Param id path int true "search project by id"
 // @Produce json
 // @Success 200 {object} util.ResponseLogin
 // @Failure 400 {object} httputil.HTTPError
-// @Router /posts/{id} [get]
-func (p *PostController) GetPost(c *gin.Context) {
+// @Router /projects/{id} [get]
+func (p *ProjectController) GetProject(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.ParseInt(idParam, 10, 64) //type conversion string to int64
 	if err != nil {
 		util.ErrorJSON(c, http.StatusBadRequest, "id invalid")
 		return
 	}
-	var post models.Post
-	post.ID = uint(id)
-	foundPost, err := p.service.Find(post)
+	var project models.Project
+	project.ID = uint(id)
+	foundProject, err := p.service.Find(project)
 	if err != nil {
-		util.ErrorJSON(c, http.StatusBadRequest, "Error Finding Post")
+		util.ErrorJSON(c, http.StatusBadRequest, "Error Finding Project")
 		return
 	}
 
-	response := foundPost.ResponseMap()
+	response := foundProject.ResponseMap()
 
 	c.JSON(http.StatusOK, &util.Response{
 		Success: true,
-		Message: "Result set of Post",
+		Message: "Result set of Project",
 		Data:    &response})
 
 }
 
-//DeletePost : Deletes Post
+//DeleteProject : Deletes Project
 
-// DeletePost godoc
-// @Summary delete post by id
+// DeleteProject godoc
+// @Summary delete project by id
 // @Schemes
-// @Description delete post by id
-// @Tags posts
+// @Description delete project by id
+// @Tags projects
 // @Accept json
 // @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
-// @Param id path int true "delete post by id"
+// @Param id path int true "delete project by id"
 // @Produce json
 // @Success 200 {object} util.ResponseLogin
 // @Failure 400 {object} httputil.HTTPError
-// @Router /posts/{id} [delete]
-func (p *PostController) DeletePost(c *gin.Context) {
+// @Router /projects/{id} [delete]
+func (p *ProjectController) DeleteProject(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.ParseInt(idParam, 10, 64) //type conversion string to uint64
 	if err != nil {
@@ -163,7 +163,7 @@ func (p *PostController) DeletePost(c *gin.Context) {
 	err = p.service.Delete(uint(id))
 
 	if err != nil {
-		util.ErrorJSON(c, http.StatusBadRequest, "Failed to delete Post")
+		util.ErrorJSON(c, http.StatusBadRequest, "Failed to delete Project")
 		return
 	}
 	response := &util.Response{
@@ -172,21 +172,21 @@ func (p *PostController) DeletePost(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-//UpdatePost : get update by id
+//UpdateProject : get update by id
 
-// UpdatePost godoc
-// @Summary get post by id
+// UpdateProject godoc
+// @Summary get project by id
 // @Schemes
-// @Description get post by id
-// @Tags posts
+// @Description get project by id
+// @Tags projects
 // @Accept json
-// @Param id path int true "search post by id"
-// @Param post body models.Post true "Posts model"
+// @Param id path int true "search project by id"
+// @Param project body models.Project true "Projects model"
 // @Produce json
 // @Success 200 {object} util.ResponseLogin
 // @Failure 400 {object} httputil.HTTPError
-// @Router /posts/{id} [put]
-func (p PostController) UpdatePost(ctx *gin.Context) {
+// @Router /projects/{id} [put]
+func (p ProjectController) UpdateProject(ctx *gin.Context) {
 	idParam := ctx.Param("id")
 
 	id, err := strconv.ParseInt(idParam, 10, 64)
@@ -195,35 +195,35 @@ func (p PostController) UpdatePost(ctx *gin.Context) {
 		util.ErrorJSON(ctx, http.StatusBadRequest, "id invalid")
 		return
 	}
-	var post models.Post
-	post.ID = uint(id)
+	var project models.Project
+	project.ID = uint(id)
 
-	postRecord, err := p.service.Find(post)
+	projectRecord, err := p.service.Find(project)
 
 	if err != nil {
-		util.ErrorJSON(ctx, http.StatusBadRequest, "Post with given id not found")
+		util.ErrorJSON(ctx, http.StatusBadRequest, "Project with given id not found")
 		return
 	}
-	ctx.ShouldBindJSON(&postRecord)
+	ctx.ShouldBindJSON(&projectRecord)
 
-	if postRecord.Title == "" {
+	if projectRecord.Title == "" {
 		util.ErrorJSON(ctx, http.StatusBadRequest, "Title is required")
 		return
 	}
-	if postRecord.Body == "" {
+	if projectRecord.Content == "" {
 		util.ErrorJSON(ctx, http.StatusBadRequest, "Body is required")
 		return
 	}
 
-	if err := p.service.Update(postRecord); err != nil {
-		util.ErrorJSON(ctx, http.StatusBadRequest, "Failed to store Post")
+	if err := p.service.Update(projectRecord); err != nil {
+		util.ErrorJSON(ctx, http.StatusBadRequest, "Failed to store Project")
 		return
 	}
-	response := postRecord.ResponseMap()
+	response := projectRecord.ResponseMap()
 
 	ctx.JSON(http.StatusOK, &util.Response{
 		Success: true,
-		Message: "Successfully Updated Post",
+		Message: "Successfully Updated Project",
 		Data:    response,
 	})
 }

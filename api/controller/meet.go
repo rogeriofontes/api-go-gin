@@ -13,36 +13,36 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//PostController -> PostController
-type PostController struct {
-	service service.PostService
+//MeetController -> MeetController
+type MeetController struct {
+	service service.MeetService
 }
 
-//NewPostController : NewPostController
-func NewPostController(s service.PostService) PostController {
-	return PostController{
+//NewMeetController : NewMeetController
+func NewMeetController(s service.MeetService) MeetController {
+	return MeetController{
 		service: s,
 	}
 }
 
-// GetPosts : GetPosts controller
+// GetMeets : GetMeets controller
 
-// GetPosts godoc
-// @Summary get all posts
+// GetMeets godoc
+// @Summary get all meets
 // @Schemes
-// @Description get all posts
+// @Description get all meets
 // @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
-// @Tags posts
+// @Tags meets
 // @Accept json
 // @Produce json
 // @Success 200 {Response} Response
-// @Router /posts [get]
-func (p PostController) GetPosts(ctx *gin.Context) {
-	var posts models.Post
+// @Router /meets [get]
+func (p MeetController) GetMeets(ctx *gin.Context) {
+	var meets models.Meet
 
 	keyword := ctx.Query("keyword")
 
-	data, total, err := p.service.FindAll(posts, keyword)
+	data, total, err := p.service.FindAll(meets, keyword)
 
 	if err != nil {
 		util.ErrorJSON(ctx, http.StatusBadRequest, "Failed to find questions")
@@ -57,103 +57,103 @@ func (p PostController) GetPosts(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, &util.Response{
 		Success: true,
-		Message: "Post result set",
+		Message: "Meet result set",
 		Data: map[string]interface{}{
 			"rows":       respArr,
 			"total_rows": total,
 		}})
 }
 
-// AddPost : AddPost controller
+// AddMeet : AddMeet controller
 
-// AddPost godoc
-// @Summary create a new post
+// AddMeet godoc
+// @Summary create a new meet
 // @Schemes
-// @Description get all posts
+// @Description get all meets
 // @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
-// @Param post body models.Post true "Posts model"
-// @Tags posts
+// @Param meet body models.Meet true "Meets model"
+// @Tags meets
 // @Accept json
 // @Produce json
 // @Success 200 {object} util.ResponseLogin
 // @Failure 400 {object} httputil.HTTPError
-// @Router /posts [post]
-func (p *PostController) AddPost(ctx *gin.Context) {
-	var post models.Post
-	fmt.Println(post)
-	ctx.ShouldBindJSON(&post)
+// @Router /meets [post]
+func (p *MeetController) AddMeet(ctx *gin.Context) {
+	var meet models.Meet
+	fmt.Println(meet)
+	ctx.ShouldBindJSON(&meet)
 
-	if post.Title == "" {
-		util.ErrorJSON(ctx, http.StatusBadRequest, "Title is required")
+	if meet.Name == "" {
+		util.ErrorJSON(ctx, http.StatusBadRequest, "Name is required")
 		return
 	}
-	if post.Body == "" {
-		util.ErrorJSON(ctx, http.StatusBadRequest, "Body is required")
+	if meet.Description == "" {
+		util.ErrorJSON(ctx, http.StatusBadRequest, "Description is required")
 		return
 	}
 
-	err := p.service.Save(post)
+	err := p.service.Save(meet)
 	if err != nil {
-		util.ErrorJSON(ctx, http.StatusBadRequest, "Failed to create post")
+		util.ErrorJSON(ctx, http.StatusBadRequest, "Failed to create meet")
 		return
 	}
 
-	util.SuccessJSON(ctx, http.StatusCreated, "Successfully Created Post")
+	util.SuccessJSON(ctx, http.StatusCreated, "Successfully Created Meet")
 }
 
-//GetPost : get post by id
+//GetMeet : get meet by id
 
-// GetPosts godoc
-// @Summary get post by id
+// GetMeets godoc
+// @Summary get meet by id
 // @Schemes
-// @Description get post by id
-// @Tags posts
+// @Description get meet by id
+// @Tags meets
 // @Accept json
 // @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
-// @Param id path int true "search post by id"
+// @Param id path int true "search meet by id"
 // @Produce json
 // @Success 200 {object} util.ResponseLogin
 // @Failure 400 {object} httputil.HTTPError
-// @Router /posts/{id} [get]
-func (p *PostController) GetPost(c *gin.Context) {
+// @Router /meets/{id} [get]
+func (p *MeetController) GetMeet(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.ParseInt(idParam, 10, 64) //type conversion string to int64
 	if err != nil {
 		util.ErrorJSON(c, http.StatusBadRequest, "id invalid")
 		return
 	}
-	var post models.Post
-	post.ID = uint(id)
-	foundPost, err := p.service.Find(post)
+	var meet models.Meet
+	meet.ID = uint(id)
+	foundMeet, err := p.service.Find(meet)
 	if err != nil {
-		util.ErrorJSON(c, http.StatusBadRequest, "Error Finding Post")
+		util.ErrorJSON(c, http.StatusBadRequest, "Error Finding Meet")
 		return
 	}
 
-	response := foundPost.ResponseMap()
+	response := foundMeet.ResponseMap()
 
 	c.JSON(http.StatusOK, &util.Response{
 		Success: true,
-		Message: "Result set of Post",
+		Message: "Result set of Meet",
 		Data:    &response})
 
 }
 
-//DeletePost : Deletes Post
+//DeleteMeet : Deletes Meet
 
-// DeletePost godoc
-// @Summary delete post by id
+// DeleteMeet godoc
+// @Summary delete meet by id
 // @Schemes
-// @Description delete post by id
-// @Tags posts
+// @Description delete meet by id
+// @Tags meets
 // @Accept json
 // @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
-// @Param id path int true "delete post by id"
+// @Param id path int true "delete meet by id"
 // @Produce json
 // @Success 200 {object} util.ResponseLogin
 // @Failure 400 {object} httputil.HTTPError
-// @Router /posts/{id} [delete]
-func (p *PostController) DeletePost(c *gin.Context) {
+// @Router /meets/{id} [delete]
+func (p *MeetController) DeleteMeet(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.ParseInt(idParam, 10, 64) //type conversion string to uint64
 	if err != nil {
@@ -163,7 +163,7 @@ func (p *PostController) DeletePost(c *gin.Context) {
 	err = p.service.Delete(uint(id))
 
 	if err != nil {
-		util.ErrorJSON(c, http.StatusBadRequest, "Failed to delete Post")
+		util.ErrorJSON(c, http.StatusBadRequest, "Failed to delete Meet")
 		return
 	}
 	response := &util.Response{
@@ -172,21 +172,21 @@ func (p *PostController) DeletePost(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-//UpdatePost : get update by id
+//UpdateMeet : get update by id
 
-// UpdatePost godoc
-// @Summary get post by id
+// UpdateMeet godoc
+// @Summary get meet by id
 // @Schemes
-// @Description get post by id
-// @Tags posts
+// @Description get meet by id
+// @Tags meets
 // @Accept json
-// @Param id path int true "search post by id"
-// @Param post body models.Post true "Posts model"
+// @Param id path int true "search meet by id"
+// @Param meet body models.Meet true "Meets model"
 // @Produce json
 // @Success 200 {object} util.ResponseLogin
 // @Failure 400 {object} httputil.HTTPError
-// @Router /posts/{id} [put]
-func (p PostController) UpdatePost(ctx *gin.Context) {
+// @Router /meets/{id} [put]
+func (p MeetController) UpdateMeet(ctx *gin.Context) {
 	idParam := ctx.Param("id")
 
 	id, err := strconv.ParseInt(idParam, 10, 64)
@@ -195,35 +195,35 @@ func (p PostController) UpdatePost(ctx *gin.Context) {
 		util.ErrorJSON(ctx, http.StatusBadRequest, "id invalid")
 		return
 	}
-	var post models.Post
-	post.ID = uint(id)
+	var meet models.Meet
+	meet.ID = uint(id)
 
-	postRecord, err := p.service.Find(post)
+	meetRecord, err := p.service.Find(meet)
 
 	if err != nil {
-		util.ErrorJSON(ctx, http.StatusBadRequest, "Post with given id not found")
+		util.ErrorJSON(ctx, http.StatusBadRequest, "Meet with given id not found")
 		return
 	}
-	ctx.ShouldBindJSON(&postRecord)
+	ctx.ShouldBindJSON(&meetRecord)
 
-	if postRecord.Title == "" {
+	if meetRecord.Name == "" {
 		util.ErrorJSON(ctx, http.StatusBadRequest, "Title is required")
 		return
 	}
-	if postRecord.Body == "" {
+	if meetRecord.Description == "" {
 		util.ErrorJSON(ctx, http.StatusBadRequest, "Body is required")
 		return
 	}
 
-	if err := p.service.Update(postRecord); err != nil {
-		util.ErrorJSON(ctx, http.StatusBadRequest, "Failed to store Post")
+	if err := p.service.Update(meetRecord); err != nil {
+		util.ErrorJSON(ctx, http.StatusBadRequest, "Failed to store Meet")
 		return
 	}
-	response := postRecord.ResponseMap()
+	response := meetRecord.ResponseMap()
 
 	ctx.JSON(http.StatusOK, &util.Response{
 		Success: true,
-		Message: "Successfully Updated Post",
+		Message: "Successfully Updated Meet",
 		Data:    response,
 	})
 }

@@ -13,36 +13,36 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//PostController -> PostController
-type PostController struct {
-	service service.PostService
+//CommentController -> CommentController
+type CommentController struct {
+	service service.CommentService
 }
 
-//NewPostController : NewPostController
-func NewPostController(s service.PostService) PostController {
-	return PostController{
+//NewCommentController : NewCommentController
+func NewCommentController(s service.CommentService) CommentController {
+	return CommentController{
 		service: s,
 	}
 }
 
-// GetPosts : GetPosts controller
+// GetComments : GetComments controller
 
-// GetPosts godoc
-// @Summary get all posts
+// GetComments godoc
+// @Summary get all comments
 // @Schemes
-// @Description get all posts
+// @Description get all comments
 // @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
-// @Tags posts
+// @Tags comments
 // @Accept json
 // @Produce json
-// @Success 200 {Response} Response
-// @Router /posts [get]
-func (p PostController) GetPosts(ctx *gin.Context) {
-	var posts models.Post
+// @Success 200 {object} util.ResponseLogin
+// @Router /comments [get]
+func (p CommentController) GetComments(ctx *gin.Context) {
+	var comments models.Comment
 
 	keyword := ctx.Query("keyword")
 
-	data, total, err := p.service.FindAll(posts, keyword)
+	data, total, err := p.service.FindAll(comments, keyword)
 
 	if err != nil {
 		util.ErrorJSON(ctx, http.StatusBadRequest, "Failed to find questions")
@@ -57,103 +57,103 @@ func (p PostController) GetPosts(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, &util.Response{
 		Success: true,
-		Message: "Post result set",
+		Message: "Comment result set",
 		Data: map[string]interface{}{
 			"rows":       respArr,
 			"total_rows": total,
 		}})
 }
 
-// AddPost : AddPost controller
+// AddComment : AddComment controller
 
-// AddPost godoc
-// @Summary create a new post
+// AddComment godoc
+// @Summary create a new comment
 // @Schemes
-// @Description get all posts
+// @Description get all comments
 // @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
-// @Param post body models.Post true "Posts model"
-// @Tags posts
+// @Param comment body models.Comment true "Comments model"
+// @Tags comments
 // @Accept json
 // @Produce json
 // @Success 200 {object} util.ResponseLogin
 // @Failure 400 {object} httputil.HTTPError
-// @Router /posts [post]
-func (p *PostController) AddPost(ctx *gin.Context) {
-	var post models.Post
-	fmt.Println(post)
-	ctx.ShouldBindJSON(&post)
+// @Router /comments [post]
+func (p *CommentController) AddComment(ctx *gin.Context) {
+	var comment models.Comment
+	fmt.Println(comment)
+	ctx.ShouldBindJSON(&comment)
 
-	if post.Title == "" {
+	if comment.Title == "" {
 		util.ErrorJSON(ctx, http.StatusBadRequest, "Title is required")
 		return
 	}
-	if post.Body == "" {
+	if comment.Comment == "" {
 		util.ErrorJSON(ctx, http.StatusBadRequest, "Body is required")
 		return
 	}
 
-	err := p.service.Save(post)
+	err := p.service.Save(comment)
 	if err != nil {
-		util.ErrorJSON(ctx, http.StatusBadRequest, "Failed to create post")
+		util.ErrorJSON(ctx, http.StatusBadRequest, "Failed to create comment")
 		return
 	}
 
-	util.SuccessJSON(ctx, http.StatusCreated, "Successfully Created Post")
+	util.SuccessJSON(ctx, http.StatusCreated, "Successfully Created Comment")
 }
 
-//GetPost : get post by id
+//GetComment : get comment by id
 
-// GetPosts godoc
-// @Summary get post by id
+// GetComments godoc
+// @Summary get comment by id
 // @Schemes
-// @Description get post by id
-// @Tags posts
+// @Description get comment by id
+// @Tags comments
 // @Accept json
 // @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
-// @Param id path int true "search post by id"
+// @Param id path int true "search comment by id"
 // @Produce json
 // @Success 200 {object} util.ResponseLogin
 // @Failure 400 {object} httputil.HTTPError
-// @Router /posts/{id} [get]
-func (p *PostController) GetPost(c *gin.Context) {
+// @Router /comments/{id} [get]
+func (p *CommentController) GetComment(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.ParseInt(idParam, 10, 64) //type conversion string to int64
 	if err != nil {
 		util.ErrorJSON(c, http.StatusBadRequest, "id invalid")
 		return
 	}
-	var post models.Post
-	post.ID = uint(id)
-	foundPost, err := p.service.Find(post)
+	var comment models.Comment
+	comment.ID = uint(id)
+	foundComment, err := p.service.Find(comment)
 	if err != nil {
-		util.ErrorJSON(c, http.StatusBadRequest, "Error Finding Post")
+		util.ErrorJSON(c, http.StatusBadRequest, "Error Finding Comment")
 		return
 	}
 
-	response := foundPost.ResponseMap()
+	response := foundComment.ResponseMap()
 
 	c.JSON(http.StatusOK, &util.Response{
 		Success: true,
-		Message: "Result set of Post",
+		Message: "Result set of Comment",
 		Data:    &response})
 
 }
 
-//DeletePost : Deletes Post
+//DeleteComment : Deletes Comment
 
-// DeletePost godoc
-// @Summary delete post by id
+// DeleteComment godoc
+// @Summary delete comment by id
 // @Schemes
-// @Description delete post by id
-// @Tags posts
+// @Description delete comment by id
+// @Tags comments
 // @Accept json
 // @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
-// @Param id path int true "delete post by id"
+// @Param id path int true "delete comment by id"
 // @Produce json
 // @Success 200 {object} util.ResponseLogin
 // @Failure 400 {object} httputil.HTTPError
-// @Router /posts/{id} [delete]
-func (p *PostController) DeletePost(c *gin.Context) {
+// @Router /comments/{id} [delete]
+func (p *CommentController) DeleteComment(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.ParseInt(idParam, 10, 64) //type conversion string to uint64
 	if err != nil {
@@ -163,7 +163,7 @@ func (p *PostController) DeletePost(c *gin.Context) {
 	err = p.service.Delete(uint(id))
 
 	if err != nil {
-		util.ErrorJSON(c, http.StatusBadRequest, "Failed to delete Post")
+		util.ErrorJSON(c, http.StatusBadRequest, "Failed to delete Comment")
 		return
 	}
 	response := &util.Response{
@@ -172,21 +172,21 @@ func (p *PostController) DeletePost(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-//UpdatePost : get update by id
+//UpdateComment : get update by id
 
-// UpdatePost godoc
-// @Summary get post by id
+// UpdateComment godoc
+// @Summary get comment by id
 // @Schemes
-// @Description get post by id
-// @Tags posts
+// @Description get comment by id
+// @Tags comments
 // @Accept json
-// @Param id path int true "search post by id"
-// @Param post body models.Post true "Posts model"
+// @Param id path int true "search comment by id"
+// @Param comment body models.Comment true "Comments model"
 // @Produce json
 // @Success 200 {object} util.ResponseLogin
 // @Failure 400 {object} httputil.HTTPError
-// @Router /posts/{id} [put]
-func (p PostController) UpdatePost(ctx *gin.Context) {
+// @Router /comments/{id} [put]
+func (p CommentController) UpdateComment(ctx *gin.Context) {
 	idParam := ctx.Param("id")
 
 	id, err := strconv.ParseInt(idParam, 10, 64)
@@ -195,35 +195,35 @@ func (p PostController) UpdatePost(ctx *gin.Context) {
 		util.ErrorJSON(ctx, http.StatusBadRequest, "id invalid")
 		return
 	}
-	var post models.Post
-	post.ID = uint(id)
+	var comment models.Comment
+	comment.ID = uint(id)
 
-	postRecord, err := p.service.Find(post)
+	commentRecord, err := p.service.Find(comment)
 
 	if err != nil {
-		util.ErrorJSON(ctx, http.StatusBadRequest, "Post with given id not found")
+		util.ErrorJSON(ctx, http.StatusBadRequest, "Comment with given id not found")
 		return
 	}
-	ctx.ShouldBindJSON(&postRecord)
+	ctx.ShouldBindJSON(&commentRecord)
 
-	if postRecord.Title == "" {
+	if commentRecord.Title == "" {
 		util.ErrorJSON(ctx, http.StatusBadRequest, "Title is required")
 		return
 	}
-	if postRecord.Body == "" {
+	if commentRecord.Comment == "" {
 		util.ErrorJSON(ctx, http.StatusBadRequest, "Body is required")
 		return
 	}
 
-	if err := p.service.Update(postRecord); err != nil {
-		util.ErrorJSON(ctx, http.StatusBadRequest, "Failed to store Post")
+	if err := p.service.Update(commentRecord); err != nil {
+		util.ErrorJSON(ctx, http.StatusBadRequest, "Failed to store Comment")
 		return
 	}
-	response := postRecord.ResponseMap()
+	response := commentRecord.ResponseMap()
 
 	ctx.JSON(http.StatusOK, &util.Response{
 		Success: true,
-		Message: "Successfully Updated Post",
+		Message: "Successfully Updated Comment",
 		Data:    response,
 	})
 }

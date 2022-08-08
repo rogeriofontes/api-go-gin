@@ -7,11 +7,13 @@ import (
 //Post Post Model
 type Post struct {
 	gorm.Model
-	//ID        int64     `gorm:"primary_key;auto_increment" json:"id"`
-	Title string `gorm:"size:200" json:"title"`
-	Body  string `gorm:"size:3000" json:"body" `
-	//CreatedAt time.Time `json:"created_at,omitempty"`
-	//UpdatedAt time.Time `json:"updated_at,omitempty"`
+	Title    string    `gorm:"size:200" json:"title"`
+	Body     string    `gorm:"size:3000" json:"body"`
+	Comments []Comment `gorm:"many2many:post_comment"`
+	UserId   int       `gorm:"not null"`
+	User     User      `gorm:"foreignkey:UserId;association_foreignkey:id" json:"user_id,omitempty"`
+	Approved bool      `json:"approved"`
+	IsActive bool      `json:"is_active"`
 }
 
 // TableName method that returns tablename of Post model
@@ -25,6 +27,7 @@ func (post *Post) ResponseMap() map[string]interface{} {
 	resp["id"] = post.ID
 	resp["title"] = post.Title
 	resp["body"] = post.Body
+	resp["Comments"] = post.Comments
 	resp["created_at"] = post.CreatedAt
 	resp["updated_at"] = post.UpdatedAt
 	return resp

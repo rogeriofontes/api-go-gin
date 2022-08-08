@@ -13,36 +13,36 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//PostController -> PostController
-type PostController struct {
-	service service.PostService
+//EventController -> EventController
+type EventController struct {
+	service service.EventService
 }
 
-//NewPostController : NewPostController
-func NewPostController(s service.PostService) PostController {
-	return PostController{
+//NewEventController : NewEventController
+func NewEventController(s service.EventService) EventController {
+	return EventController{
 		service: s,
 	}
 }
 
-// GetPosts : GetPosts controller
+// GetEvents : GetEvents controller
 
-// GetPosts godoc
-// @Summary get all posts
+// GetEvents godoc
+// @Summary get all events
 // @Schemes
-// @Description get all posts
+// @Description get all events
 // @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
-// @Tags posts
+// @Tags events
 // @Accept json
 // @Produce json
 // @Success 200 {Response} Response
-// @Router /posts [get]
-func (p PostController) GetPosts(ctx *gin.Context) {
-	var posts models.Post
+// @Router /events [get]
+func (p EventController) GetEvents(ctx *gin.Context) {
+	var events models.Event
 
 	keyword := ctx.Query("keyword")
 
-	data, total, err := p.service.FindAll(posts, keyword)
+	data, total, err := p.service.FindAll(events, keyword)
 
 	if err != nil {
 		util.ErrorJSON(ctx, http.StatusBadRequest, "Failed to find questions")
@@ -57,103 +57,103 @@ func (p PostController) GetPosts(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, &util.Response{
 		Success: true,
-		Message: "Post result set",
+		Message: "Event result set",
 		Data: map[string]interface{}{
 			"rows":       respArr,
 			"total_rows": total,
 		}})
 }
 
-// AddPost : AddPost controller
+// AddEvent : AddEvent controller
 
-// AddPost godoc
-// @Summary create a new post
+// AddEvent godoc
+// @Summary create a new event
 // @Schemes
-// @Description get all posts
+// @Description get all events
 // @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
-// @Param post body models.Post true "Posts model"
-// @Tags posts
+// @Param event body models.Event true "Events model"
+// @Tags events
 // @Accept json
 // @Produce json
 // @Success 200 {object} util.ResponseLogin
 // @Failure 400 {object} httputil.HTTPError
-// @Router /posts [post]
-func (p *PostController) AddPost(ctx *gin.Context) {
-	var post models.Post
-	fmt.Println(post)
-	ctx.ShouldBindJSON(&post)
+// @Router /events [post]
+func (p *EventController) AddEvent(ctx *gin.Context) {
+	var event models.Event
+	fmt.Println(event)
+	ctx.ShouldBindJSON(&event)
 
-	if post.Title == "" {
-		util.ErrorJSON(ctx, http.StatusBadRequest, "Title is required")
+	if event.Name == "" {
+		util.ErrorJSON(ctx, http.StatusBadRequest, "Name is required")
 		return
 	}
-	if post.Body == "" {
-		util.ErrorJSON(ctx, http.StatusBadRequest, "Body is required")
+	if event.Description == "" {
+		util.ErrorJSON(ctx, http.StatusBadRequest, "Description is required")
 		return
 	}
 
-	err := p.service.Save(post)
+	err := p.service.Save(event)
 	if err != nil {
-		util.ErrorJSON(ctx, http.StatusBadRequest, "Failed to create post")
+		util.ErrorJSON(ctx, http.StatusBadRequest, "Failed to create event")
 		return
 	}
 
-	util.SuccessJSON(ctx, http.StatusCreated, "Successfully Created Post")
+	util.SuccessJSON(ctx, http.StatusCreated, "Successfully Created Event")
 }
 
-//GetPost : get post by id
+//GetEvent : get event by id
 
-// GetPosts godoc
-// @Summary get post by id
+// GetEvents godoc
+// @Summary get event by id
 // @Schemes
-// @Description get post by id
-// @Tags posts
+// @Description get event by id
+// @Tags events
 // @Accept json
 // @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
-// @Param id path int true "search post by id"
+// @Param id path int true "search event by id"
 // @Produce json
 // @Success 200 {object} util.ResponseLogin
 // @Failure 400 {object} httputil.HTTPError
-// @Router /posts/{id} [get]
-func (p *PostController) GetPost(c *gin.Context) {
+// @Router /events/{id} [get]
+func (p *EventController) GetEvent(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.ParseInt(idParam, 10, 64) //type conversion string to int64
 	if err != nil {
 		util.ErrorJSON(c, http.StatusBadRequest, "id invalid")
 		return
 	}
-	var post models.Post
-	post.ID = uint(id)
-	foundPost, err := p.service.Find(post)
+	var event models.Event
+	event.ID = uint(id)
+	foundEvent, err := p.service.Find(event)
 	if err != nil {
-		util.ErrorJSON(c, http.StatusBadRequest, "Error Finding Post")
+		util.ErrorJSON(c, http.StatusBadRequest, "Error Finding Event")
 		return
 	}
 
-	response := foundPost.ResponseMap()
+	response := foundEvent.ResponseMap()
 
 	c.JSON(http.StatusOK, &util.Response{
 		Success: true,
-		Message: "Result set of Post",
+		Message: "Result set of Event",
 		Data:    &response})
 
 }
 
-//DeletePost : Deletes Post
+//DeleteEvent : Deletes Event
 
-// DeletePost godoc
-// @Summary delete post by id
+// DeleteEvent godoc
+// @Summary delete event by id
 // @Schemes
-// @Description delete post by id
-// @Tags posts
+// @Description delete event by id
+// @Tags events
 // @Accept json
 // @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
-// @Param id path int true "delete post by id"
+// @Param id path int true "delete event by id"
 // @Produce json
 // @Success 200 {object} util.ResponseLogin
 // @Failure 400 {object} httputil.HTTPError
-// @Router /posts/{id} [delete]
-func (p *PostController) DeletePost(c *gin.Context) {
+// @Router /events/{id} [delete]
+func (p *EventController) DeleteEvent(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.ParseInt(idParam, 10, 64) //type conversion string to uint64
 	if err != nil {
@@ -163,7 +163,7 @@ func (p *PostController) DeletePost(c *gin.Context) {
 	err = p.service.Delete(uint(id))
 
 	if err != nil {
-		util.ErrorJSON(c, http.StatusBadRequest, "Failed to delete Post")
+		util.ErrorJSON(c, http.StatusBadRequest, "Failed to delete Event")
 		return
 	}
 	response := &util.Response{
@@ -172,21 +172,21 @@ func (p *PostController) DeletePost(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-//UpdatePost : get update by id
+//UpdateEvent : get update by id
 
-// UpdatePost godoc
-// @Summary get post by id
+// UpdateEvent godoc
+// @Summary get event by id
 // @Schemes
-// @Description get post by id
-// @Tags posts
+// @Description get event by id
+// @Tags events
 // @Accept json
-// @Param id path int true "search post by id"
-// @Param post body models.Post true "Posts model"
+// @Param id path int true "search event by id"
+// @Param event body models.Event true "Events model"
 // @Produce json
 // @Success 200 {object} util.ResponseLogin
 // @Failure 400 {object} httputil.HTTPError
-// @Router /posts/{id} [put]
-func (p PostController) UpdatePost(ctx *gin.Context) {
+// @Router /events/{id} [put]
+func (p EventController) UpdateEvent(ctx *gin.Context) {
 	idParam := ctx.Param("id")
 
 	id, err := strconv.ParseInt(idParam, 10, 64)
@@ -195,35 +195,35 @@ func (p PostController) UpdatePost(ctx *gin.Context) {
 		util.ErrorJSON(ctx, http.StatusBadRequest, "id invalid")
 		return
 	}
-	var post models.Post
-	post.ID = uint(id)
+	var event models.Event
+	event.ID = uint(id)
 
-	postRecord, err := p.service.Find(post)
+	eventRecord, err := p.service.Find(event)
 
 	if err != nil {
-		util.ErrorJSON(ctx, http.StatusBadRequest, "Post with given id not found")
+		util.ErrorJSON(ctx, http.StatusBadRequest, "Event with given id not found")
 		return
 	}
-	ctx.ShouldBindJSON(&postRecord)
+	ctx.ShouldBindJSON(&eventRecord)
 
-	if postRecord.Title == "" {
+	if eventRecord.Name == "" {
 		util.ErrorJSON(ctx, http.StatusBadRequest, "Title is required")
 		return
 	}
-	if postRecord.Body == "" {
+	if eventRecord.Description == "" {
 		util.ErrorJSON(ctx, http.StatusBadRequest, "Body is required")
 		return
 	}
 
-	if err := p.service.Update(postRecord); err != nil {
-		util.ErrorJSON(ctx, http.StatusBadRequest, "Failed to store Post")
+	if err := p.service.Update(eventRecord); err != nil {
+		util.ErrorJSON(ctx, http.StatusBadRequest, "Failed to store Event")
 		return
 	}
-	response := postRecord.ResponseMap()
+	response := eventRecord.ResponseMap()
 
 	ctx.JSON(http.StatusOK, &util.Response{
 		Success: true,
-		Message: "Successfully Updated Post",
+		Message: "Successfully Updated Event",
 		Data:    response,
 	})
 }
